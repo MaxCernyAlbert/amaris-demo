@@ -51,7 +51,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   network_interface_ids = [azurerm_network_interface.app_nic.id]
   admin_ssh_key {
     username   = "azureuser"
-    public_key = file("${path.module}/.ssh/id_rsa.pub")
+    public_key = file(".ssh/id_rsa-${var.env}.pub")
   }
   disable_password_authentication = true
   os_disk {
