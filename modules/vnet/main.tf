@@ -82,11 +82,11 @@ resource "azurerm_network_security_rule" "this" {
   network_security_group_name = azurerm_network_security_group.this[each.value.subnet_key].name
 
   # Optionally handle lists for port/address prefixes
-  source_port_ranges          = try(each.value.source_port_ranges, null)
-  destination_port_ranges     = try(each.value.destination_port_ranges, null)
-  source_address_prefixes     = try(each.value.source_address_prefixes, null)
-  destination_address_prefixes= try(each.value.destination_address_prefixes, null)
-  description                 = try(each.value.description, null)
+  source_port_ranges           = try(each.value.source_port_ranges, null)
+  destination_port_ranges      = try(each.value.destination_port_ranges, null)
+  source_address_prefixes      = try(each.value.source_address_prefixes, null)
+  destination_address_prefixes = try(each.value.destination_address_prefixes, null)
+  description                  = try(each.value.description, null)
 }
 
 

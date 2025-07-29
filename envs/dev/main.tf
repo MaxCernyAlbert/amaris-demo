@@ -6,7 +6,7 @@ terraform {
     storage_account_name = "stamaristerraformdev"
     container_name       = "tfstate"
     key                  = "dev.tfstate"
-    use_oidc = true
+    use_oidc             = true
   }
 }
 provider "azurerm" {

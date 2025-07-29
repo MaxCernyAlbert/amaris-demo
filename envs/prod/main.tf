@@ -6,7 +6,7 @@ terraform {
     storage_account_name = "stamaristerraformprod"
     container_name       = "tfstate"
     key                  = "prod.tfstate"
-    use_oidc = true
+    use_oidc             = true
 
   }
 }
