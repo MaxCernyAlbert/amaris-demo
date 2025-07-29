@@ -75,6 +75,50 @@ resource "azurerm_network_security_rule" "this" {
   network_security_group_name = azurerm_network_security_group.this[each.key].name
 }
 
+
+resource "azurerm_network_security_group" "this" {
+  for_each            = { for k, v in var.subnets : k => v.nsg_rules if length(try(v.nsg_rules, [])) > 0 }
+  name                = "${var.name}-${each.key}-nsg"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tags                = var.tags
+}
+locals {
+  flattened_nsg_rules = flatten([
+    for subnet_key, subnet in var.subnets : [
+      for r in try(subnet.nsg_rules, []) : merge(r, {
+        subnet_key = subnet_key
+        _key       = "${subnet_key}-${r.name}"
+      })
+    ]
+  ])
+}
+
+
+resource "azurerm_network_security_rule" "this" {
+  for_each = { for r in local.flattened_nsg_rules : r._key => r }
+
+  name                        = each.value.name
+  priority                    = each.value.priority
+  direction                   = each.value.direction
+  access                      = each.value.access
+  protocol                    = each.value.protocol
+  source_port_range           = try(each.value.source_port_range, null)
+  destination_port_range      = try(each.value.destination_port_range, null)
+  source_address_prefix       = try(each.value.source_address_prefix, null)
+  destination_address_prefix  = try(each.value.destination_address_prefix, null)
+  resource_group_name         = var.resource_group_name
+  network_security_group_name = azurerm_network_security_group.this[each.value.subnet_key].name
+
+  # Optionally handle lists for port/address prefixes
+  source_port_ranges          = try(each.value.source_port_ranges, null)
+  destination_port_ranges     = try(each.value.destination_port_ranges, null)
+  source_address_prefixes     = try(each.value.source_address_prefixes, null)
+  destination_address_prefixes= try(each.value.destination_address_prefixes, null)
+  description                 = try(each.value.description, null)
+}
+
+
 resource "azurerm_subnet_network_security_group_association" "this" {
   for_each                  = azurerm_network_security_group.this
   subnet_id                 = azurerm_subnet.this[each.key].id
