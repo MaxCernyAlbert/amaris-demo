@@ -1,7 +1,16 @@
 
-variable "prefix" {}
-variable "env" {}
-variable "region" {}
+variable "prefix" {
+  type = string
+}
+
+variable "env" {
+  type = string
+}
+
+variable "region" {
+  type = string
+}
+
 variable "tags" {
   type = map(string)
 }
