@@ -31,20 +31,20 @@ resource "azurerm_subnet" "this" {
   virtual_network_name = azurerm_virtual_network.this.name
   address_prefixes     = each.value.address_prefixes
   service_endpoints    = try(each.value.service_endpoints, null)
+
+  dynamic "delegation" {
+    for_each = try(each.value.delegations, [])
+    content {
+      name = delegation.value.name
+      service_delegation {
+        name    = delegation.value.service_delegation.name
+        actions = delegation.value.service_delegation.actions
+      }
+    }
+  }
+
 }
 
-resource "azurerm_subnet_delegation" "this" {
-  for_each = {
-    for k, v in var.subnets : k => v.delegations
-    if length(try(v.delegations, [])) > 0
-  }
-  name      = "${var.name}-${each.key}-delegation"
-  subnet_id = azurerm_subnet.this[each.key].id
-  service_delegation {
-    name    = each.value[0].service_delegation.name
-    actions = each.value[0].service_delegation.actions
-  }
-}
 
 
 resource "azurerm_network_security_group" "this" {
