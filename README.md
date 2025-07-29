@@ -58,7 +58,7 @@ For each environment, add these **Variables** (Settings → Environments → <en
 ## Policies and Tagging
 - Required tags: `env`, `owner`, `cost`, `region`. Enforced by a variable `validation` in the module.
 
-## Documentation
+## Auto generated Documentation
 
 <!-- BEGIN_TF_DOCS -->
 <!-- END_TF_DOCS -->

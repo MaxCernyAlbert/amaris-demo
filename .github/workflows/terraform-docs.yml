@@ -19,10 +19,26 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
-      - name: Render terraform docs and push changes
+      - name: Render terraform docs for modules/vnet and push changes
         uses: terraform-docs/gh-actions@v1.4.1
         with:
           working-dir: modules/vnet
+          output-file: README.md
+          output-method: inject
+          git-push: "true"
+
+  docs-root:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current branch (PR head)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+      - name: Render terraform docs for root (main.tf) and push changes
+        uses: terraform-docs/gh-actions@v1.4.1
+        with:
+          working-dir: .
           output-file: README.md
           output-method: inject
           git-push: "true"
