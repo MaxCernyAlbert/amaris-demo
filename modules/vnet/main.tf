@@ -69,7 +69,7 @@ locals {
   flattened_nsg_rules = flatten([
     for subnet_key, subnet in var.subnets : [
       for r in try(subnet.nsg_rules, []) : merge(r, {
-        subnet_key = subnet_key,      # Track which subnet the rule belongs to
+        subnet_key = subnet_key,               # Track which subnet the rule belongs to
         _key       = "${subnet_key}-${r.name}" # Unique key for rule instance
       })
     ]
@@ -82,17 +82,17 @@ resource "azurerm_network_security_rule" "this" {
     for r in local.flattened_nsg_rules : r._key => r
   }
 
-  name                        = each.value.name
-  priority                    = each.value.priority
-  direction                   = each.value.direction
-  access                      = each.value.access
-  protocol                    = each.value.protocol
+  name      = each.value.name
+  priority  = each.value.priority
+  direction = each.value.direction
+  access    = each.value.access
+  protocol  = each.value.protocol
 
   # Basic single-value fields
-  source_port_range           = try(each.value.source_port_range, null)
-  destination_port_range      = try(each.value.destination_port_range, null)
-  source_address_prefix       = try(each.value.source_address_prefix, null)
-  destination_address_prefix  = try(each.value.destination_address_prefix, null)
+  source_port_range          = try(each.value.source_port_range, null)
+  destination_port_range     = try(each.value.destination_port_range, null)
+  source_address_prefix      = try(each.value.source_address_prefix, null)
+  destination_address_prefix = try(each.value.destination_address_prefix, null)
 
   # List-based variants, optional fallback
   source_port_ranges           = try(each.value.source_port_ranges, null)
@@ -100,7 +100,7 @@ resource "azurerm_network_security_rule" "this" {
   source_address_prefixes      = try(each.value.source_address_prefixes, null)
   destination_address_prefixes = try(each.value.destination_address_prefixes, null)
 
-  description                  = try(each.value.description, null)
+  description = try(each.value.description, null)
 
   resource_group_name         = var.resource_group_name
   network_security_group_name = azurerm_network_security_group.this[each.value.subnet_key].name

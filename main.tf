@@ -9,7 +9,7 @@ terraform {
 
   required_providers {
     azurerm = {
-      source  = "hashicorp/azurerm"
+      source = "hashicorp/azurerm"
       # Keep provider on a stable minor track. Bump intentionally in PRs.
       version = "~> 3.112"
     }
@@ -33,7 +33,7 @@ resource "azurerm_resource_group" "rg" {
   name     = "${var.prefix}-${var.env}-${var.region}-rg"
   location = var.region
   # Governance: consistent tagging for cost/ownership/filters.
-  tags     = var.tags
+  tags = var.tags
 }
 
 #############################################
@@ -44,21 +44,21 @@ resource "azurerm_resource_group" "rg" {
 # Inputs are passed through from root variables to keep this root thin.
 module "vnet" {
   # Module path is local; publishable modules would use a git or registry source.
-  source              = "./modules/vnet"
+  source = "./modules/vnet"
 
   # VNet name follows the shared convention for easy discovery.
-  name                = "${var.prefix}-${var.env}-${var.region}-vnet"
+  name = "${var.prefix}-${var.env}-${var.region}-vnet"
 
   # Place all network resources into the environment RG in this example.
   resource_group_name = azurerm_resource_group.rg.name
   location            = var.region
 
   # Addressing and subnets come from variables to avoid hard-coding.
-  address_space       = var.address_space
-  subnets             = var.subnets
+  address_space = var.address_space
+  subnets       = var.subnets
 
   # Tags propagate from root for consistent governance.
-  tags                = var.tags
+  tags = var.tags
 }
 
 #############################################
@@ -73,7 +73,7 @@ resource "azurerm_network_interface" "app_nic" {
   location            = var.region
 
   ip_configuration {
-    name                          = "primary"
+    name = "primary"
     # Subnet IDs are exposed by the VNet module outputs.
     subnet_id                     = module.vnet.subnet_ids["app"]
     private_ip_address_allocation = "Dynamic"
@@ -90,14 +90,14 @@ resource "azurerm_network_interface" "app_nic" {
 # This pattern is simple and explicit; for larger stacks prefer count at a
 # higher level or separate stacks per env.
 resource "azurerm_linux_virtual_machine" "vm" {
-  count                 = var.env == "dev" ? 1 : 0
+  count = var.env == "dev" ? 1 : 0
 
-  name                  = "${var.prefix}-${var.env}-${var.region}-vm"
-  resource_group_name   = azurerm_resource_group.rg.name
-  location              = var.region
+  name                = "${var.prefix}-${var.env}-${var.region}-vm"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.region
 
   # Size chosen to be free-tier/friendly for a demo; 
-  size                  = "Standard_B1ms"
+  size = "Standard_B1ms"
 
   admin_username        = "azureuser"
   network_interface_ids = [azurerm_network_interface.app_nic.id]
@@ -137,9 +137,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
 # Storage account for artifacts, logs, or Terraform remote state in other cases.
 # Name must be globally unique, 3–24 lowercase alphanumerics; we strip dashes above.
 resource "azurerm_storage_account" "sa" {
-  name                     = replace("${var.prefix}${var.env}${var.region}sa", "-", "")
-  resource_group_name      = azurerm_resource_group.rg.name
-  location                 = var.region
+  name                = replace("${var.prefix}${var.env}${var.region}sa", "-", "")
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.region
 
   # Standard_LRS is cost-effective for dev; adjust tier/replication by RPO/RTO needs.
   account_tier             = "Standard"
@@ -147,9 +147,9 @@ resource "azurerm_storage_account" "sa" {
 
   # Enforce modern TLS; public blob access remains disabled by default in AzAPI,
   # but be explicit when you need to harden.
-  min_tls_version          = "TLS1_2"
+  min_tls_version = "TLS1_2"
 
-  tags                     = var.tags
+  tags = var.tags
 }
 
 # Private container for build artifacts or application payloads.
