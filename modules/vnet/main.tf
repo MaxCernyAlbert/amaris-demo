@@ -76,7 +76,7 @@ resource "azurerm_network_security_rule" "this" {
 }
 
 resource "azurerm_subnet_network_security_group_association" "this" {
-  for_each                 = azurerm_network_security_group.this
-  subnet_id                = azurerm_subnet.this[each.key].id
+  for_each                  = azurerm_network_security_group.this
+  subnet_id                 = azurerm_subnet.this[each.key].id
   network_security_group_id = each.value.id
 }

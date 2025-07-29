@@ -58,9 +58,9 @@ EOT
     nsg_rules = optional(list(object({
       name                       = string
       priority                   = number
-      direction                  = string   # Inbound or Outbound
-      access                     = string   # Allow or Deny
-      protocol                   = string   # Tcp | Udp | *
+      direction                  = string # Inbound or Outbound
+      access                     = string # Allow or Deny
+      protocol                   = string # Tcp | Udp | *
       source_port_range          = string
       destination_port_range     = string
       source_address_prefix      = string
@@ -85,9 +85,9 @@ variable "tags" {
 
   validation {
     condition = (
-      contains(keys(var.tags), "env")    &&
-      contains(keys(var.tags), "owner")  &&
-      contains(keys(var.tags), "cost")   &&
+      contains(keys(var.tags), "env") &&
+      contains(keys(var.tags), "owner") &&
+      contains(keys(var.tags), "cost") &&
       contains(keys(var.tags), "region")
     )
     error_message = "tags must include keys: env, owner, cost, region."

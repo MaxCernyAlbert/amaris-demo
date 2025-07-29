@@ -16,7 +16,7 @@ locals {
   prefix = "amaris"
   env    = "prod"
   region = "westeurope"
-  tags = { env = local.env, owner = "platform", cost = "prod", region = local.region }
+  tags   = { env = local.env, owner = "platform", cost = "prod", region = local.region }
 }
 
 resource "azurerm_resource_group" "rg" {

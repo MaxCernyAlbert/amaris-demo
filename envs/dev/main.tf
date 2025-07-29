@@ -41,14 +41,14 @@ module "vnet" {
       address_prefixes  = ["10.10.1.0/24"]
       service_endpoints = ["Microsoft.Storage"]
       nsg_rules = [{
-        name                      = "allow_ssh",
-        priority                  = 100,
-        direction                 = "Inbound",
-        access                    = "Allow",
-        protocol                  = "Tcp",
-        source_port_range         = "*",
-        destination_port_range    = "22",
-        source_address_prefix     = "*",
+        name                       = "allow_ssh",
+        priority                   = 100,
+        direction                  = "Inbound",
+        access                     = "Allow",
+        protocol                   = "Tcp",
+        source_port_range          = "*",
+        destination_port_range     = "22",
+        source_address_prefix      = "*",
         destination_address_prefix = "*"
       }]
     }
@@ -80,11 +80,11 @@ resource "azurerm_network_interface" "vm_nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                = "${local.prefix}-${local.env}-${local.region}-vm"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = local.region
-  size                = "Standard_B1ms"
-  admin_username      = "azureuser"
+  name                  = "${local.prefix}-${local.env}-${local.region}-vm"
+  resource_group_name   = azurerm_resource_group.rg.name
+  location              = local.region
+  size                  = "Standard_B1ms"
+  admin_username        = "azureuser"
   network_interface_ids = [azurerm_network_interface.vm_nic.id]
   admin_ssh_key {
     username   = "azureuser"
