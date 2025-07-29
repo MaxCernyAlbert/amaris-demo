@@ -6,6 +6,7 @@ terraform {
     storage_account_name = "stamaristerraformdev"
     container_name       = "tfstate"
     key                  = "dev.tfstate"
+    use_oidc = true
   }
 }
 provider "azurerm" {
@@ -116,6 +117,6 @@ resource "azurerm_storage_account" "sa" {
 
 resource "azurerm_storage_container" "artifacts" {
   name                  = "artifacts"
-  storage_account_id    = azurerm_storage_account.sa.id
+  storage_account_name  = azurerm_storage_account.sa.name
   container_access_type = "private"
 }
