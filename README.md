@@ -20,7 +20,6 @@ envs/
 .github/workflows/
   terraform.yml         # Validate/Plan/Apply using env-specific vars
   terraform-docs.yml    # Auto-generate module docs on PR/push
-.pre-commit-config.yaml # fmt/validate + tflint + tfsec
 tflint.hcl              # Linter config
 ```
 
@@ -106,6 +105,3 @@ For each environment, add these **Variables** (Settings → Environments → <en
 No outputs.
 <!-- END_TF_DOCS -->
 
-
-## Tests (bonus)
-- A Terratest scaffold is included under `tests/` (optional).
