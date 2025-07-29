@@ -46,35 +46,6 @@ resource "azurerm_subnet_delegation" "this" {
   }
 }
 
-resource "azurerm_network_security_group" "this" {
-  for_each            = { for k, v in var.subnets : k => v.nsg_rules if length(try(v.nsg_rules, [])) > 0 }
-  name                = "${var.name}-${each.key}-nsg"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  tags                = var.tags
-}
-
-resource "azurerm_network_security_rule" "this" {
-  for_each = {
-    for subnet_key, rules in var.subnets : subnet_key => rules.nsg_rules
-    if length(try(rules.nsg_rules, [])) > 0
-  }
-  count = length(each.value)
-
-  name                       = each.value[count.index].name
-  priority                   = each.value[count.index].priority
-  direction                  = each.value[count.index].direction
-  access                     = each.value[count.index].access
-  protocol                   = each.value[count.index].protocol
-  source_port_range          = each.value[count.index].source_port_range
-  destination_port_range     = each.value[count.index].destination_port_range
-  source_address_prefix      = each.value[count.index].source_address_prefix
-  destination_address_prefix = each.value[count.index].destination_address_prefix
-
-  resource_group_name         = var.resource_group_name
-  network_security_group_name = azurerm_network_security_group.this[each.key].name
-}
-
 
 resource "azurerm_network_security_group" "this" {
   for_each            = { for k, v in var.subnets : k => v.nsg_rules if length(try(v.nsg_rules, [])) > 0 }
