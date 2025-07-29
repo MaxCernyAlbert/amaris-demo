@@ -1,0 +1,27 @@
+name: terraform-docs
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  docs-vnet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current branch (PR head)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+      - name: Render terraform docs and push changes
+        uses: terraform-docs/gh-actions@v1.4.1
+        with:
+          working-dir: modules/vnet
+          output-file: README.md
+          output-method: inject
+          git-push: "true"

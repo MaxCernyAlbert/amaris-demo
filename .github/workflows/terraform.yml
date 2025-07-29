@@ -1,0 +1,109 @@
+name: terraform
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: 1.6.6 }
+      - name: Azure login (OIDC, dev env vars)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: terraform -chdir=envs/dev fmt -check
+      - run: terraform -chdir=envs/dev init -backend-config="key=dev.tfstate"
+      - run: terraform -chdir=envs/dev validate
+      - name: TFLint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          ./bin/tflint --init
+          ./bin/tflint
+      - name: TFSEC
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install.sh | sh -s -- -b ./bin
+          ./bin/tfsec .
+
+  plan-dev:
+    runs-on: ubuntu-latest
+    needs: validate
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Azure login (OIDC, dev env vars)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: terraform -chdir=envs/dev init -backend-config="key=dev.tfstate"
+      - run: terraform -chdir=envs/dev plan -out=plan.tfplan
+      - run: terraform -chdir=envs/dev show -no-color plan.tfplan > plan.txt
+      - uses: actions/upload-artifact@v4
+        with: { name: dev-plan, path: envs/dev/plan.txt }
+
+  apply-dev:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: plan-dev
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Azure login (OIDC, dev env vars)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: terraform -chdir=envs/dev init -backend-config="key=dev.tfstate"
+      - run: terraform -chdir=envs/dev apply -auto-approve
+
+  plan-prod:
+    runs-on: ubuntu-latest
+    needs: validate
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Azure login (OIDC, prod env vars)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: terraform -chdir=envs/prod init -backend-config="key=prod.tfstate"
+      - run: terraform -chdir=envs/prod plan -out=plan.tfplan
+      - run: terraform -chdir=envs/prod show -no-color plan.tfplan > plan.txt
+      - uses: actions/upload-artifact@v4
+        with: { name: prod-plan, path: envs/prod/plan.txt }
+
+  apply-prod:
+    if: github.ref == 'refs/heads/main'
+    environment: prod
+    runs-on: ubuntu-latest
+    needs: plan-prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Azure login (OIDC, prod env vars)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: terraform -chdir=envs/prod init -backend-config="key=prod.tfstate"
+      - run: terraform -chdir=envs/prod apply -auto-approve
