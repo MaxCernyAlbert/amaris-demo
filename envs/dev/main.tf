@@ -58,14 +58,6 @@ module "vnet" {
   tags = local.tags
 }
 
-resource "azurerm_public_ip" "vm_pip" {
-  name                = "${local.prefix}-${local.env}-${local.region}-vm-pip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = local.region
-  allocation_method   = "Static"
-  sku                 = "Basic"
-  tags                = local.tags
-}
 
 resource "azurerm_network_interface" "vm_nic" {
   name                = "${local.prefix}-${local.env}-${local.region}-vm-nic"
@@ -75,7 +67,6 @@ resource "azurerm_network_interface" "vm_nic" {
     name                          = "primary"
     subnet_id                     = module.vnet.subnet_ids["app"]
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.vm_pip.id
   }
   tags = local.tags
 }
