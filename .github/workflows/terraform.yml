@@ -68,7 +68,7 @@ jobs:
           path: plan.txt
 
   apply-dev:
-    if: github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: plan-dev
     environment: dev
@@ -118,7 +118,7 @@ jobs:
           path: plan.txt
 
   apply-prod:
-    if: github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: plan-prod
     environment: prod
