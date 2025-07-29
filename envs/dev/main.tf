@@ -2,13 +2,15 @@ terraform {
   required_version = ">= 1.6"
   required_providers { azurerm = { source = "hashicorp/azurerm", version = "~> 3.112" } }
   backend "azurerm" {
-    resource_group_name  = "REPLACE_WITH_TFSTATE_RG"
-    storage_account_name = "REPLACEWITHTFSTATEACCOUNT"
+    resource_group_name  = "rg-operation"
+    storage_account_name = "stamaristerraformdev"
     container_name       = "tfstate"
     key                  = "dev.tfstate"
   }
 }
-provider "azurerm" { features {} }
+provider "azurerm" {
+  features {}
+}
 
 locals {
   prefix = "amaris"
@@ -39,9 +41,15 @@ module "vnet" {
       address_prefixes  = ["10.10.1.0/24"]
       service_endpoints = ["Microsoft.Storage"]
       nsg_rules = [{
-        name="allow_ssh"; priority=100; direction="Inbound"; access="Allow"; protocol="Tcp";
-        source_port_range="*"; destination_port_range="22";
-        source_address_prefix="*"; destination_address_prefix="*";
+        name                      = "allow_ssh",
+        priority                  = 100,
+        direction                 = "Inbound",
+        access                    = "Allow",
+        protocol                  = "Tcp",
+        source_port_range         = "*",
+        destination_port_range    = "22",
+        source_address_prefix     = "*",
+        destination_address_prefix = "*"
       }]
     }
     data = { address_prefixes = ["10.10.2.0/24"] }
@@ -78,10 +86,21 @@ resource "azurerm_linux_virtual_machine" "vm" {
   size                = "Standard_B1ms"
   admin_username      = "azureuser"
   network_interface_ids = [azurerm_network_interface.vm_nic.id]
-  admin_ssh_key { username = "azureuser"; public_key = file("~/.ssh/id_rsa.pub") }
+  admin_ssh_key {
+    username   = "azureuser"
+    public_key = file("~/.ssh/id_rsa.pub")
+  }
   disable_password_authentication = true
-  os_disk { caching = "ReadWrite"; storage_account_type = "Standard_LRS" }
-  source_image_reference { publisher = "Canonical"; offer = "0001-com-ubuntu-server-jammy"; sku = "22_04-lts-gen2"; version = "latest" }
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
   tags = local.tags
 }
 
@@ -92,12 +111,11 @@ resource "azurerm_storage_account" "sa" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
   min_tls_version          = "TLS1_2"
-  allow_blob_public_access = false
   tags                     = local.tags
 }
 
 resource "azurerm_storage_container" "artifacts" {
   name                  = "artifacts"
-  storage_account_name  = azurerm_storage_account.sa.name
+  storage_account_id    = azurerm_storage_account.sa.id
   container_access_type = "private"
 }

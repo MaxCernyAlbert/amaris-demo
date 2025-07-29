@@ -4,7 +4,9 @@ terraform {
     azurerm = { source = "hashicorp/azurerm", version = "~> 3.112" }
   }
 }
-provider "azurerm" { features {} }
+provider "azurerm" {
+  features {}
+}
 
 resource "azurerm_virtual_network" "this" {
   name                = var.name
@@ -15,7 +17,10 @@ resource "azurerm_virtual_network" "this" {
 
   dynamic "ddos_protection_plan" {
     for_each = var.enable_ddos && var.ddos_plan_id != null ? [1] : []
-    content { id = var.ddos_plan_id }
+    content {
+      id     = var.ddos_plan_id
+      enable = var.enable_ddos
+    }
   }
 }
 

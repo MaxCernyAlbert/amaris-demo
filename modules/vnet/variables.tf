@@ -82,14 +82,14 @@ variable "ddos_plan_id" {
 variable "tags" {
   type        = map(string)
   description = "Tags to apply to all resources created by this module."
-}
 
-validation {
-  condition = (
-    contains(keys(var.tags), "env")    &&
-    contains(keys(var.tags), "owner")  &&
-    contains(keys(var.tags), "cost")   &&
-    contains(keys(var.tags), "region")
-  )
-  error_message = "tags must include keys: env, owner, cost, region."
+  validation {
+    condition = (
+      contains(keys(var.tags), "env")    &&
+      contains(keys(var.tags), "owner")  &&
+      contains(keys(var.tags), "cost")   &&
+      contains(keys(var.tags), "region")
+    )
+    error_message = "tags must include keys: env, owner, cost, region."
+  }
 }
