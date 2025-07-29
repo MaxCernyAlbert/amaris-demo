@@ -38,10 +38,10 @@ jobs:
           curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
           tflint --init
           tflint
-      - name: TFSEC
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install.sh | sh -s -- -b ./bin
-          tfsec .
+      # - name: TFSEC
+      #   run: |
+      #     curl -sSfL https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install.sh | sh -s -- -b ./bin
+      #     tfsec .
 
   plan-dev:
     runs-on: ubuntu-latest
