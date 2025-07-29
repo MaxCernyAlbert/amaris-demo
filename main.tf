@@ -6,7 +6,13 @@ terraform {
   # Pin a sensible floor for Terraform. If you rely on specific features,
   # keep this aligned with your toolchain/CI image.
   required_version = ">= 1.6"
-
+  backend "azurerm" {
+    resource_group_name  = ""
+    storage_account_name = ""
+    container_name       = ""
+    key                  = ""
+    use_oidc             = true
+  }
   required_providers {
     azurerm = {
       source = "hashicorp/azurerm"
